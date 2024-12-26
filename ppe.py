@@ -5,13 +5,21 @@ import math
 import time
 import os
 
-# Video Input
-video_path = input("Enter the path to the video file: ")
-if not os.path.exists(video_path):
-    print("Error: Video file not found!")
-    exit()
+choice = input("Enter '1' for Camera or '2' for Video: ")
 
-cap = cv2.VideoCapture(video_path)  # Open video file
+if choice == '1':
+    cap = cv2.VideoCapture(0)  # Open webcam
+    cap.set(3, 640)  # Set frame width
+    cap.set(4, 480)  # Set frame height
+elif choice == '2':
+    video_path = input("Enter the path to the video file: ")
+    if not os.path.exists(video_path):
+        print("Error: Video file not found!")
+        exit()
+    cap = cv2.VideoCapture(video_path)  # Open video file
+else:
+    print("Invalid choice! Exiting...")
+    exit()
 
 # Load the YOLO model
 model = YOLO("D:\\Infosys springboard\\PPE_kit_detection\\PPE_detection_Kit\\best.pt")
@@ -23,16 +31,15 @@ classNames = ['Hardhat', 'Mask', 'NO-Hardhat', 'NO-Mask', 'NO-Safety Vest', 'Per
 prev_frame_time = 0
 fps = 0  # Initialize fps variable
 
-# Check if video is opened
+# Check if camera or video is opened
 if not cap.isOpened():
-    print("Error: Could not open the video file.")
+    print("Error: Camera/Video not found or could not be opened.")
     exit()
 
-# Video Processing Loop
 while True:
     success, img = cap.read()
     if not success:
-        print("End of video or failed to capture frame.")
+        print("Failed to capture image or end of video.")
         break
 
     results = model(img, stream=True)
